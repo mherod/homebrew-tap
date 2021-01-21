@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    macos:
+      xcode: 12.3.0
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+    steps:
+      - checkout
+      - run: brew install resharkercli || brew install --build-bottle resharkercli && brew bottle resharkercli
+      - run: resharkercli --help
+      - store_artifacts:
+          destination: out
+          path: ~/repo/
