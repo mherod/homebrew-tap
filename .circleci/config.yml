@@ -11,10 +11,18 @@ jobs:
       TERM: dumb
 
     steps:
-      - checkout
+#      - checkout
+      
       - run: brew tap mherod/tap && brew update
-      - run: brew install resharkercli || ( brew install --verbose --build-bottle resharkercli && brew bottle resharkercli 
-      - run: resharkercli --help
+
+      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
+      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
+      
       - store_artifacts:
           destination: out
           path: ~/repo/
+
+      - run:
+          name: Brew cleanup
+          command: brew cleanup
+          when: always
