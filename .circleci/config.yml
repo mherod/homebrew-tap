@@ -12,6 +12,7 @@ jobs:
 
     steps:
       - checkout
+      - run: brew tap mherod/tap && brew update
       - run: brew install resharkercli || brew install --build-bottle resharkercli && brew bottle resharkercli
       - run: resharkercli --help
       - store_artifacts:
