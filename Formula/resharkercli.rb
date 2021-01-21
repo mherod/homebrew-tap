@@ -10,9 +10,10 @@ class Resharkercli < Formula
     root_url "https://github.com/mherod/resharkercli/releases/download/0.0.1"
     cellar :any_skip_relocation
     sha256 "de574f393d93ec30a0031316c17bfa062ccfda7a6ab9af62bc1abd5affddba06" => :big_sur
+    sha256 "594a7e6579978acfab8c862f060d90bade5905eab1e088250f3e90352dae061d" => :catalina
   end
 
-  depends_on :xcode => "12.0"
+  depends_on :xcode => ["12.0", :build]
 
   def install
     system "./gradlew", "installBrewBinary"
