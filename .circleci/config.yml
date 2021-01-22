@@ -21,7 +21,7 @@ jobs:
             
       - run: curl -s "https://get.sdkman.io" | bash
       - run: source "$HOME/.sdkman/bin/sdkman-init.sh"
-      - run: while sdk env install ; do sdk env || true ; done
+      - run: until sdk env install ; do sdk env || true ; done
       - run: brew install gh
       - run: gh config set -h github.com git_protocol ssh
       - run: gh auth status
