@@ -1,0 +1,6 @@
+# Enable auto-env through the sdkman_auto_env config
+# Add key=value pairs of SDKs to use below
+java=8.0.275.j9-adpt
+kotlin=1.4.20
+gradle=6.8
+kscript=3.0.2
