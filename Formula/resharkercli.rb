@@ -3,6 +3,7 @@ class Resharkercli < Formula
   homepage ""
   version "0.0.2"
   url "https://github.com/mherod/resharkercli/archive/0.0.2.tar.gz"
+  sha256 "5f75508af012a6bde56c5adb4ba1fe238a684d560404386c64649d9da142ffb0"
   license ""
 
   bottle do
