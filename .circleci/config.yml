@@ -12,28 +12,38 @@ jobs:
 
     steps:
       - checkout
+      
       - restore_cache:
           keys:
             - javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
             - javacache-{{ checksum ".circleci/config.yml" }}-
             - javacache-
-      - run: brew tap mherod/tap
-      - run: brew install gh holgerbrandl/tap/kscript mherod/tap/resharkercli
-      - run: brew update
-      - run: sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-      - run: echo 'export PATH="/usr/local/opt/openjdk/bin:$PATH"' >> /Users/distiller/.bash_profile
-      # cat ~/.config/gh/hosts.yml | base64 | pbcopy
-      - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+            
+      - run: curl -s "https://get.sdkman.io" | bash
+      - run: source "$HOME/.sdkman/bin/sdkman-init.sh"
+      - run: while sdk env install ; do sdk env || true ; done
+      - run: brew install gh
       - run: gh config set -h github.com git_protocol ssh
       - run: gh auth status
-      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
-      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
-      - run: bash upload-bottles.sh
-      - run: kscript edit-formula.sh
+      
+      - run: brew update
+      # cat ~/.config/gh/hosts.yml | base64 | pbcopy
+      - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+
+      - run: brew tap mherod/tap
+      - run: sdk env && brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
+      - run: sdk env && brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
+      
+      - run: sdk env && bash upload-bottles.sh
+      - run: sdk env && kscript edit-formula.sh
+      
       - run: git pull --rebase --autostash && git add Formula
       - run: git commit -m "[automatic] update formulas" && git push origin
-      - run: brew cleanup
+      
       - save_cache:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:
           - /Users/distiller/Library/Caches/Homebrew/java_cache
+          
+      - run: brew cleanup
+          
