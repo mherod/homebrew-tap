@@ -12,13 +12,17 @@ jobs:
 
     steps:
       - checkout
-      - run: brew install gh
+      - run: brew tap mherod/tap
+      - run: brew install gh holgerbrandl/tap/kscript mherod/tap/resharkercli
+      - run: brew update
       # cat ~/.config/gh/hosts.yml | base64 | pbcopy
       - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
       - run: gh config set -h github.com git_protocol ssh
       - run: gh auth status
-      - run: brew tap mherod/tap && brew update
       - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
       - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
       - run: bash upload-bottles.sh
+      - run: kscript edit-formula.sh
+      - run: git pull --rebase --autostash && git add Formula
+      - run: git commit -m "[automatic] update formulas" && git push origin
       - run: brew cleanup

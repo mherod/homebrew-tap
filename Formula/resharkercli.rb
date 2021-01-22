@@ -1,16 +1,12 @@
 class Resharkercli < Formula
   desc "A combined Git and Jira CLI written for Kotlin/Native and JVM 🦈"
   homepage ""
-  version "0.0.1"
-  url "https://github.com/mherod/resharkercli/archive/7fd201b.tar.gz"
-  sha256 "b91a3000c8ea33233753b5252d02731e005ddf833126fe9f93b727010e926ddf"
+  version "0.0.2"
+  url "https://github.com/mherod/resharkercli/archive/0.0.2.tar.gz"
   license ""
-  
+
   bottle do
-    root_url "https://github.com/mherod/resharkercli/releases/download/0.0.1"
     cellar :any_skip_relocation
-    sha256 "de574f393d93ec30a0031316c17bfa062ccfda7a6ab9af62bc1abd5affddba06" => :big_sur
-    sha256 "594a7e6579978acfab8c862f060d90bade5905eab1e088250f3e90352dae061d" => :catalina
   end
 
   depends_on :xcode => ["12.0", :build]
