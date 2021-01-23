@@ -14,6 +14,10 @@ formulaFileTree.forEach { formulaFile ->
     val buildBottleTask = task<Exec>("brewInstallBuildBottle$capitalizedName") {
         group = "homebrew"
         inputs.file(formulaFile)
+        outputs.files(fileTree("/usr/local/Cellar/$formulaName/$formulaVersion"))
+        outputs.upToDateWhen {
+            file("/usr/local/Cellar/$formulaName/$formulaVersion/bin/$formulaName").exists()
+        }
         commandLine("brew", "install", "--build-bottle", formulaName)
     }
     val bottlesFileCollection: ConfigurableFileTree = fileTree(mapOf(
@@ -33,6 +37,7 @@ formulaFileTree.forEach { formulaFile ->
         commandLine("brew", "bottle", formulaName)
         standardOutput = FileOutputStream(bottleConsoleOut)
         inputs.file(formulaFile)
+        inputs.files(fileTree("/usr/local/Cellar/$formulaName/$formulaVersion"))
         outputs.files(bottlesFileCollection)
         outputs.file(bottleConsoleOut)
         outputs.upToDateWhen {
@@ -47,7 +52,7 @@ formulaFileTree.forEach { formulaFile ->
             }
         }
     }
-    task<Exec>(uploadTaskName) {
+    val uploadTask = task<Exec>(uploadTaskName) {
         group = "homebrew"
         dependsOn(buildBottleTask, bottleTask)
         commandLine(
@@ -65,12 +70,13 @@ formulaFileTree.forEach { formulaFile ->
         inputs.file(formulaFile)
         inputs.files(bottleTask.outputs.files)
         outputs.file(uploadConsoleOut)
+        outputs.upToDateWhen { uploadConsoleOut.exists() }
         doFirst {
             println("args: $args")
         }
     }
     val editFormulaTaskName = "brewEditFormulaForNewBottle$capitalizedName"
-    task(editFormulaTaskName) {
+    val editFormulaTask = task(editFormulaTaskName) {
         group = "homebrew"
         dependsOn(buildBottleTask, bottleTask)
         mustRunAfter(buildBottleTask, bottleTask)
@@ -107,8 +113,8 @@ formulaFileTree.forEach { formulaFile ->
         inputs.files(formulaFileTree)
         inputs.file(headFile)
         outputs.file(headFile)
-        dependsOn(bottleTask, editFormulaTaskName)
-        mustRunAfter(bottleTask, editFormulaTaskName)
+        dependsOn(bottleTask, editFormulaTask, uploadTask)
+        mustRunAfter(bottleTask, editFormulaTask, uploadTask)
         val commitMessage =
             "[automated] " +
                     "Update Formula/${formulaName}.rb " +
