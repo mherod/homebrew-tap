@@ -12,9 +12,13 @@ val brewBottlePublishTask = task("brewBottlePublish") {
 formulaFileTree.forEach { formulaFile ->
     val formulaName = formulaFile.nameWithoutExtension
     val capitalizedName = formulaName.capitalize()
-    val formulaVersion =
-        "\"(\\S+)\"".toRegex().find(formulaFile.readLines().first { "version" in it })!!.groupValues.last()
+    val originalFormulaText = formulaFile.readText()
+    val originalFormulaLines = formulaFile.readLines()
+    val formulaVersion = "\"(\\S+)\"".toRegex()
+        .find(originalFormulaLines.first { "version" in it })!!.groupValues.last()
     println("Configuring $formulaName $formulaVersion")
+    val existingBottles = originalFormulaLines
+        .filter { "sha256" in it && "=>" in it }
     val buildBottleTask = task<Exec>("brewInstallBuildBottle$capitalizedName") {
         group = "homebrew"
         brewBottlePublishTask.dependsOn(this)
@@ -52,9 +56,12 @@ formulaFileTree.forEach { formulaFile ->
         doLast {
             tasks.getByName<Exec>(uploadTaskName) {
                 val bottleFile = bottlesFileCollection.singleFile
-                val newName = file(bottleFile.name.replace("--", "-"))
-                bottleFile.renameTo(newName)
-                args(newName)
+                val newName = bottleFile.name.replace("--", "-")
+                val newNameFile = file(newName)
+                val os = newName.substringBeforeLast(".bottle").substringBeforeLast('.')
+                bottleFile.renameTo(newNameFile)
+                onlyIf { os !in originalFormulaText }
+                args(newNameFile)
             }
         }
     }
@@ -66,7 +73,6 @@ formulaFileTree.forEach { formulaFile ->
             "gh",
             "release",
             "upload",
-//            "--clobber", // temporarily
             "--repo",
             "$githubUsername/$formulaName",
             formulaVersion
@@ -78,10 +84,6 @@ formulaFileTree.forEach { formulaFile ->
         inputs.files(bottleTask.outputs.files)
         outputs.file(uploadConsoleOut)
         outputs.upToDateWhen { uploadConsoleOut.exists() }
-        isIgnoreExitValue = true
-        doFirst {
-            println("args: $args")
-        }
     }
     val editFormulaTaskName = "brewEditFormulaForNewBottle$capitalizedName"
     val editFormulaTask = task(editFormulaTaskName) {
@@ -91,11 +93,17 @@ formulaFileTree.forEach { formulaFile ->
         mustRunAfter(buildBottleTask, bottleTask)
         inputs.files(bottleConsoleOut, formulaFile)
         outputs.file(formulaFile)
+        onlyIf {
+            originalFormulaText.let { originalFormula ->
+                bottleConsoleOut.exists() && bottleConsoleOut.readLines()
+                    .filter { "sha256" in it && it !in existingBottles }
+                    .any { it.substringAfterLast(':') !in originalFormula }
+            }
+        }
         doLast {
             val fileText = formulaFile.readText()
             val before = fileText.substringBefore("bottle do").trim()
             val after = fileText.substringAfter("bottle do").substringAfter("end").trim()
-            val existingBottles = formulaFile.readLines().filter { "sha256" in it && "=>" in it }
             val newBottles = bottleConsoleOut.readLines()
                 .filter { "sha256" in it && it !in existingBottles }
                 .filter { it.substringAfterLast(':') !in fileText }
@@ -114,8 +122,7 @@ formulaFileTree.forEach { formulaFile ->
                         }
                     appendln("  end")
                     appendln()
-                    append("  ")
-                    append(after)
+                    appendln("  ${after.trim()}")
                 }
                 formulaFile.writeText(rewrite)
             }
