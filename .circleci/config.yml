@@ -44,17 +44,10 @@ jobs:
           name: Tap tap tap in
           command: brew tap mherod/tap
 
-      #      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
-#      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
-#      - run: resharkercli --help
       - run: sdk env && gradle brewBottleUploadResharkercli
 
-      #      - run: sdk env && bash upload-bottles.sh
-      #      - run: sdk env && kscript edit-formula.sh
-
-      #      - run: git pull --rebase --autostash && git add Formula
-      #      - run: git commit -m "[automatic] update formulas" && git push origin
-
+      - run: git pull --rebase --autostash && git push origin
+          -
       - save_cache:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:

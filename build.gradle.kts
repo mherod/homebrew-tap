@@ -3,6 +3,7 @@ import java.io.FileOutputStream
 val githubUsername = "mherod"
 
 val formulaFileTree = fileTree("Formula")
+val headFile = file("$rootDir/.git/HEAD")
 
 formulaFileTree.forEach { formulaFile ->
     val formulaName = formulaFile.nameWithoutExtension
@@ -21,7 +22,7 @@ formulaFileTree.forEach { formulaFile ->
     ))
     val bottleTaskName = "brewBottle$capitalizedName"
     val uploadTaskName = "brewBottleUpload$capitalizedName"
-    val bottleConsoleOut = File("${bottleTaskName}.log")
+    val bottleConsoleOut = file("${bottleTaskName}.log")
     val bottleTask = task<Exec>(bottleTaskName) {
         doFirst {
             bottlesFileCollection.files.forEach { it.delete() }
@@ -37,7 +38,7 @@ formulaFileTree.forEach { formulaFile ->
         doLast {
             tasks.getByName<Exec>(uploadTaskName) {
                 val bottleFile = bottlesFileCollection.singleFile
-                val newName = File(bottleFile.name.replace("--", "-"))
+                val newName = file(bottleFile.name.replace("--", "-"))
                 bottleFile.renameTo(newName)
                 args(newName)
             }
@@ -56,7 +57,7 @@ formulaFileTree.forEach { formulaFile ->
             "$githubUsername/$formulaName",
             formulaVersion
         )
-        val uploadConsoleOut = File("$uploadTaskName.log")
+        val uploadConsoleOut = file("$uploadTaskName.log")
         standardOutput = FileOutputStream(bottleConsoleOut)
         inputs.file(bottleConsoleOut)
         inputs.file(formulaFile)
@@ -104,20 +105,24 @@ formulaFileTree.forEach { formulaFile ->
     task("gitCommitFormulaUpdate") {
         group = "homebrew"
         inputs.files(formulaFileTree)
-        inputs.file("$rootDir/.git/HEAD")
-        outputs.file("$rootDir/.git/HEAD")
+        inputs.file(headFile)
+        outputs.file(headFile)
         dependsOn(editFormulaTaskName)
+        val commitMessage =
+            "[automated] " +
+                    "Update Formula/${formulaName}.rb " +
+                    "for ${bottlesFileCollection.singleFile.nameWithoutExtension}"
         doLast {
-            ProcessBuilder("git", "add", "Formula")
-                .start()
-                .inputStream
-                .bufferedReader()
-                .readLines()
-            ProcessBuilder("git", "commit", "-m", "[automated] Update Formula/${formulaName}.rb for ${bottlesFileCollection.singleFile.nameWithoutExtension}")
-                .start()
-                .inputStream
-                .bufferedReader()
-                .readLines()
+            runCommand("git", "add", "Formula")
+            runCommand("git", "commit", "-m", commitMessage)
         }
     }
+}
+
+fun runCommand(vararg command: String): List<String> {
+    return ProcessBuilder(*command)
+        .start()
+        .inputStream
+        .bufferedReader()
+        .readLines()
 }
