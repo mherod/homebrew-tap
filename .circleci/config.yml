@@ -20,11 +20,12 @@ jobs:
             - javacache-
 
       - run:
-          name: Install sdkman
-          command: sdk current || curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh"
+          name: Brew doctor
+          command: brew doctor
+          background: true
       - run:
           name: Install project build tools
-          command: until sdk env install ; do sdk env || true ; done && sdk current
+          command: bash install-sdkman-tools.sh
           background: true
       - run:
           name: Prepare homebrew and additional build tools
