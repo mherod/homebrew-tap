@@ -19,19 +19,33 @@ jobs:
             - javacache-{{ checksum ".circleci/config.yml" }}-
             - javacache-
 
-      - run: brew install gh
+      - run:
+          name: Install sdkman
+          command: curl -s "https://get.sdkman.io" | bash
+      - run:
+          name: Install project build tools
+          command: while sdk env install ; do sdk env || true ; done
+          background: true
+      - run:
+          name: Prepare homebrew and additional build tools
+          command: brew update && brew install gh
+
       # cat ~/.config/gh/hosts.yml | base64 | pbcopy
-      - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
-      - run: gh config set -h github.com git_protocol ssh
-      - run: gh auth status
+      - run:
+          name: Writing gh configuration
+          command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+      - run:
+          name: Check GitHub auth status
+          command: gh config set -h github.com git_protocol ssh && gh auth status
 
-      - run: brew update
+      - run:
+          name: Tap tap tap in
+          command: brew tap mherod/tap
 
-      - run: brew tap mherod/tap
       #      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
-      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
-      - run: resharkercli --help
-      - run: gradle brewBottleUploadResharkercli --rerun-tasks
+#      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
+#      - run: resharkercli --help
+      - run: gradle brewBottleUploadResharkercli
 
       #      - run: sdk env && bash upload-bottles.sh
       #      - run: sdk env && kscript edit-formula.sh
@@ -43,5 +57,6 @@ jobs:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:
             - /Users/distiller/Library/Caches/Homebrew/java_cache
+          when: always
 
       - run: brew cleanup
