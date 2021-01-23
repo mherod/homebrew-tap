@@ -20,27 +20,28 @@ jobs:
             - javacache-
 
       - run: brew install gh
+      # cat ~/.config/gh/hosts.yml | base64 | pbcopy
+      - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
       - run: gh config set -h github.com git_protocol ssh
       - run: gh auth status
 
       - run: brew update
-      # cat ~/.config/gh/hosts.yml | base64 | pbcopy
-      - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
 
       - run: brew tap mherod/tap
-      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
+      #      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
       - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
-      - run: ./gradlew brewBottleUploadResharkercli --rerun-tasks
+      - run: resharkercli --help
+      - run: gradle brewBottleUploadResharkercli --rerun-tasks
 
-#      - run: sdk env && bash upload-bottles.sh
-#      - run: sdk env && kscript edit-formula.sh
+      #      - run: sdk env && bash upload-bottles.sh
+      #      - run: sdk env && kscript edit-formula.sh
 
-#      - run: git pull --rebase --autostash && git add Formula
-#      - run: git commit -m "[automatic] update formulas" && git push origin
+      #      - run: git pull --rebase --autostash && git add Formula
+      #      - run: git commit -m "[automatic] update formulas" && git push origin
 
       - save_cache:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:
-          - /Users/distiller/Library/Caches/Homebrew/java_cache
+            - /Users/distiller/Library/Caches/Homebrew/java_cache
 
       - run: brew cleanup
