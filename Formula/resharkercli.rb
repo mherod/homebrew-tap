@@ -7,7 +7,9 @@ class Resharkercli < Formula
   license ""
 
   bottle do
+    root_url "https://github.com/mherod/resharkercli/releases/download/0.0.2"
     cellar :any_skip_relocation
+    sha256 "b3764cf7d4566a0a51a170a4518c38fc3c511bb36f32b2b7afc1245232e02154" => :big_sur
   end
 
   depends_on :xcode => ["12.0", :build]
