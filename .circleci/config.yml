@@ -11,6 +11,11 @@ jobs:
       TERM: dumb
 
     steps:
+      - run:
+          name: Prepare Homebrew
+          command: brew doctor && brew update
+          background: true
+
       - checkout
 
       - restore_cache:
@@ -20,16 +25,12 @@ jobs:
             - javacache-
 
       - run:
-          name: Brew doctor
-          command: brew doctor
-          background: true
-      - run:
-          name: Install project build tools
+          name: Install project build tools via sdkman
           command: bash install-sdkman-tools.sh
           background: true
       - run:
-          name: Prepare homebrew and additional build tools
-          command: brew update && brew install gh
+          name: Install project build tools via Homebrew
+          command: brew install gh
 
       # cat ~/.config/gh/hosts.yml | base64 | pbcopy
       - run:
