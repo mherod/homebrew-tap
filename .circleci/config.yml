@@ -21,10 +21,10 @@ jobs:
 
       - run:
           name: Install sdkman
-          command: curl -s "https://get.sdkman.io" | bash
+          command: sdk current || curl -s "https://get.sdkman.io" | bash && source "$HOME/.sdkman/bin/sdkman-init.sh"
       - run:
           name: Install project build tools
-          command: until sdk env install ; do sdk env || true ; done && gradle tasks help
+          command: until sdk env install ; do sdk env || true ; done && sdk current
           background: true
       - run:
           name: Prepare homebrew and additional build tools
@@ -45,7 +45,7 @@ jobs:
       #      - run: brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
 #      - run: brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
 #      - run: resharkercli --help
-      - run: gradle brewBottleUploadResharkercli
+      - run: sdk env && gradle brewBottleUploadResharkercli
 
       #      - run: sdk env && bash upload-bottles.sh
       #      - run: sdk env && kscript edit-formula.sh
