@@ -27,7 +27,12 @@ formulaFileTree.forEach { formulaFile ->
         outputs.upToDateWhen {
             file("/usr/local/Cellar/$formulaName/$formulaVersion/bin/$formulaName").exists()
         }
-        commandLine("brew", "install", "--build-bottle", formulaName)
+        commandLine(
+            "brew",
+            "install",
+            "--build-bottle",
+            formulaName
+        )
     }
     val bottlesFileCollection: ConfigurableFileTree = fileTree(mapOf(
         "dir" to projectDir,
