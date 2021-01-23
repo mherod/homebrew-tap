@@ -10,4 +10,5 @@ gradlew.bat
 .DS_Store
 gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties
-*.xml
+
+.idea/*
