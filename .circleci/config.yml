@@ -52,6 +52,6 @@ jobs:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:
             - /Users/distiller/Library/Caches/Homebrew/java_cache
-          when: always
+          when: on_success
 
       - run: brew cleanup
