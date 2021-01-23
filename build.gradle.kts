@@ -73,9 +73,8 @@ formulaFileTree.forEach { formulaFile ->
     task(editFormulaTaskName) {
         group = "homebrew"
         dependsOn(buildBottleTask, bottleTask)
-        mustRunAfter(buildBottleTask)
-        inputs.file(bottleConsoleOut)
-        inputs.file(formulaFile)
+        mustRunAfter(buildBottleTask, bottleTask)
+        inputs.files(bottleConsoleOut, formulaFile)
         outputs.file(formulaFile)
         doLast {
             val fileText = formulaFile.readText()
@@ -108,8 +107,8 @@ formulaFileTree.forEach { formulaFile ->
         inputs.files(formulaFileTree)
         inputs.file(headFile)
         outputs.file(headFile)
-        dependsOn(bottleTask)
-        dependsOn(editFormulaTaskName)
+        dependsOn(bottleTask, editFormulaTaskName)
+        mustRunAfter(bottleTask, editFormulaTaskName)
         val commitMessage =
             "[automated] " +
                     "Update Formula/${formulaName}.rb " +
