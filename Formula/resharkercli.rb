@@ -10,7 +10,6 @@ class Resharkercli < Formula
     root_url "https://github.com/mherod/resharkercli/releases/download/0.0.2"
     cellar :any_skip_relocation
     sha256 "b3764cf7d4566a0a51a170a4518c38fc3c511bb36f32b2b7afc1245232e02154" => :big_sur
-    sha256 "e654a44a023aa4b5cf3ed8725e9cdd7a538e5a78f12f8c921caea132fa697779" => :catalina
     sha256 "dc66f8dc86ad54fa0e59a4899e4604fa68a19cb157ef82d4c22b05c8355d4608" => :catalina
     sha256 "5063c2d0c02677cf75d9e39d2bd63e377c0a05f1f33432ed61a4b58386c0deb1" => :catalina
   end

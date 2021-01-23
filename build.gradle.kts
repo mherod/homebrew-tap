@@ -78,6 +78,7 @@ formulaFileTree.forEach { formulaFile ->
         inputs.files(bottleTask.outputs.files)
         outputs.file(uploadConsoleOut)
         outputs.upToDateWhen { uploadConsoleOut.exists() }
+        isIgnoreExitValue = true
         doFirst {
             println("args: $args")
         }
@@ -95,28 +96,32 @@ formulaFileTree.forEach { formulaFile ->
             val before = fileText.substringBefore("bottle do").trim()
             val after = fileText.substringAfter("bottle do").substringAfter("end").trim()
             val existingBottles = formulaFile.readLines().filter { "sha256" in it && "=>" in it }
-            val newBottles = bottleConsoleOut.readLines().filter { "sha256" in it && it !in existingBottles }
-            val rewrite = buildString {
-                appendln(before)
-                appendln()
-                appendln("  bottle do")
-                appendln("    root_url \"https://github.com/$githubUsername/$formulaName/releases/download/$formulaVersion\"")
-                appendln("    cellar :any_skip_relocation")
-                (existingBottles + newBottles)
-                    .map { it.trim() }
-                    .distinct()
-                    .forEach {
-                        appendln("    $it")
-                    }
-                appendln("  end")
-                appendln()
-                append("  ")
-                append(after)
+            val newBottles = bottleConsoleOut.readLines()
+                .filter { "sha256" in it && it !in existingBottles }
+                .filter { it.substringAfterLast(':') !in fileText }
+            if (newBottles.isNotEmpty()) {
+                val rewrite = buildString {
+                    appendln(before)
+                    appendln()
+                    appendln("  bottle do")
+                    appendln("    root_url \"https://github.com/$githubUsername/$formulaName/releases/download/$formulaVersion\"")
+                    appendln("    cellar :any_skip_relocation")
+                    (existingBottles + newBottles)
+                        .map { it.trim() }
+                        .distinct()
+                        .forEach {
+                            appendln("    $it")
+                        }
+                    appendln("  end")
+                    appendln()
+                    append("  ")
+                    append(after)
+                }
+                formulaFile.writeText(rewrite)
             }
-            formulaFile.writeText(rewrite)
         }
     }
-    val commitTask = task("gitCommitFormulaUpdate$capitalizedName") {
+    task("gitCommitFormulaUpdate$capitalizedName") {
         group = "homebrew"
         brewBottlePublishTask.dependsOn(this)
         inputs.files(formulaFileTree)
