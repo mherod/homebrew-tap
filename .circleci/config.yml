@@ -24,7 +24,7 @@ jobs:
           command: curl -s "https://get.sdkman.io" | bash
       - run:
           name: Install project build tools
-          command: until sdk env install ; do sdk env || true ; done
+          command: until sdk env install ; do sdk env || true ; done && gradle tasks help
           background: true
       - run:
           name: Prepare homebrew and additional build tools
