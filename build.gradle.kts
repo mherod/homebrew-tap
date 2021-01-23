@@ -35,6 +35,9 @@ formulaFileTree.forEach { formulaFile ->
         inputs.file(formulaFile)
         outputs.files(bottlesFileCollection)
         outputs.file(bottleConsoleOut)
+        outputs.upToDateWhen {
+            bottleConsoleOut.exists() && bottlesFileCollection.files.count() == 1
+        }
         doLast {
             tasks.getByName<Exec>(uploadTaskName) {
                 val bottleFile = bottlesFileCollection.singleFile
@@ -46,8 +49,7 @@ formulaFileTree.forEach { formulaFile ->
     }
     task<Exec>(uploadTaskName) {
         group = "homebrew"
-        dependsOn(bottleTask)
-        mustRunAfter(bottleTask)
+        dependsOn(buildBottleTask, bottleTask)
         commandLine(
             "gh",
             "release",
@@ -70,8 +72,7 @@ formulaFileTree.forEach { formulaFile ->
     val editFormulaTaskName = "brewEditFormulaForNewBottle$capitalizedName"
     task(editFormulaTaskName) {
         group = "homebrew"
-        dependsOn(buildBottleTask)
-        dependsOn(bottleTask)
+        dependsOn(buildBottleTask, bottleTask)
         mustRunAfter(buildBottleTask)
         inputs.file(bottleConsoleOut)
         inputs.file(formulaFile)
@@ -107,6 +108,7 @@ formulaFileTree.forEach { formulaFile ->
         inputs.files(formulaFileTree)
         inputs.file(headFile)
         outputs.file(headFile)
+        dependsOn(bottleTask)
         dependsOn(editFormulaTaskName)
         val commitMessage =
             "[automated] " +

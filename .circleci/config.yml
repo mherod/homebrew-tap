@@ -43,7 +43,11 @@ jobs:
           name: Tap tap tap in
           command: brew tap mherod/tap
 
-      - run: sdk env && gradle brewBottleUploadResharkercli
+      - run:
+          name: Disable Gradle daemon
+          command: mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+
+      - run: sdk env && gradle brewBottleUploadResharkercli gitCommitFormulaUpdate
 
       - run: git pull --rebase --autostash && git push origin
           -
