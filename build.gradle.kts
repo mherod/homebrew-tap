@@ -66,7 +66,7 @@ formulaFileTree.forEach { formulaFile ->
             "gh",
             "release",
             "upload",
-            /*"--clobber",*/
+            "--clobber", // temporarily
             "--repo",
             "$githubUsername/$formulaName",
             formulaVersion
