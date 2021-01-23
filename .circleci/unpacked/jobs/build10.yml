@@ -5,7 +5,7 @@ environment:
 steps:
   - run:
       name: Prepare Homebrew
-      command: brew doctor --verbose && brew update --verbose
+      command: brew doctor --verbose #&& brew update --verbose
   - checkout
   - restore_cache:
       keys:
@@ -21,7 +21,7 @@ steps:
   # cat ~/.config/gh/hosts.yml | base64 | pbcopy
   - run:
       name: Writing gh configuration
-      command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+      command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -D > ~/.config/gh/hosts.yml
   - run:
       name: Check GitHub auth status
       command: gh config set -h github.com git_protocol ssh && gh auth status

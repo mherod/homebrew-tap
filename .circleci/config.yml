@@ -7,7 +7,7 @@ jobs:
       xcode: 10.0.0
     steps:
       - run:
-          command: brew doctor --verbose && brew update --verbose
+          command: brew doctor --verbose
           name: Prepare Homebrew
       - checkout
       - restore_cache:
@@ -22,7 +22,7 @@ jobs:
           command: brew install gh || brew install --build-from-source gh
           name: Install project build tools via Homebrew
       - run:
-          command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+          command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -D > ~/.config/gh/hosts.yml
           name: Writing gh configuration
       - run:
           command: gh config set -h github.com git_protocol ssh && gh auth status
