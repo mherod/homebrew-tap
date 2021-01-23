@@ -19,7 +19,7 @@ jobs:
           command: bash install-sdkman-tools.sh
           name: Install project build tools via sdkman
       - run:
-          command: brew install gh
+          command: brew install gh || brew install --build-from-source gh
           name: Install project build tools via Homebrew
       - run:
           command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
@@ -27,6 +27,9 @@ jobs:
       - run:
           command: gh config set -h github.com git_protocol ssh && gh auth status
           name: Check GitHub auth status
+      - run:
+          command: git branch --set-upstream-to=origin/$CIRCLE_BRANCH $CIRCLE_BRANCH
+          name: Set git upstream
       - run:
           command: brew tap mherod/tap
           name: Tap tap tap in
@@ -63,7 +66,7 @@ jobs:
           command: bash install-sdkman-tools.sh
           name: Install project build tools via sdkman
       - run:
-          command: brew install gh
+          command: brew install gh || brew install --build-from-source gh
           name: Install project build tools via Homebrew
       - run:
           command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
@@ -71,6 +74,9 @@ jobs:
       - run:
           command: gh config set -h github.com git_protocol ssh && gh auth status
           name: Check GitHub auth status
+      - run:
+          command: git branch --set-upstream-to=origin/$CIRCLE_BRANCH $CIRCLE_BRANCH
+          name: Set git upstream
       - run:
           command: brew tap mherod/tap
           name: Tap tap tap in
