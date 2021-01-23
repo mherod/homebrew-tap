@@ -1,4 +1,48 @@
 jobs:
+  build10:
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    macos:
+      xcode: 10.0.0
+    steps:
+      - run:
+          command: brew doctor --verbose && brew update --verbose
+          name: Prepare Homebrew
+      - checkout
+      - restore_cache:
+          keys:
+            - javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
+            - javacache-{{ checksum ".circleci/config.yml" }}-
+            - javacache-
+      - run:
+          command: bash install-sdkman-tools.sh
+          name: Install project build tools via sdkman
+      - run:
+          command: brew install gh
+          name: Install project build tools via Homebrew
+      - run:
+          command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+          name: Writing gh configuration
+      - run:
+          command: gh config set -h github.com git_protocol ssh && gh auth status
+          name: Check GitHub auth status
+      - run:
+          command: brew tap mherod/tap
+          name: Tap tap tap in
+      - run:
+          command: sdk env && gradle brewBottlePublish
+          name: Build and upload bottles, commit Formula update
+      - run:
+          command: git pull --rebase --autostash && git push origin
+          name: Pull again (rebase) and push
+      - save_cache:
+          key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
+          paths:
+            - /Users/distiller/Library/Caches/Homebrew/java_cache
+          when: on_success
+      - run: brew cleanup
+    working_directory: ~/repo
   build12:
     environment:
       JVM_OPTS: -Xmx3200m
@@ -49,3 +93,4 @@ workflows:
   commit:
     jobs:
       - build12
+

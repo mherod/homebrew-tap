@@ -1,0 +1,42 @@
+working_directory: ~/repo
+environment:
+  JVM_OPTS: -Xmx3200m
+  TERM: dumb
+steps:
+  - run:
+      name: Prepare Homebrew
+      command: brew doctor --verbose && brew update --verbose
+  - checkout
+  - restore_cache:
+      keys:
+        - javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
+        - javacache-{{ checksum ".circleci/config.yml" }}-
+        - javacache-
+  - run:
+      name: Install project build tools via sdkman
+      command: bash install-sdkman-tools.sh
+  - run:
+      name: Install project build tools via Homebrew
+      command: brew install gh
+  # cat ~/.config/gh/hosts.yml | base64 | pbcopy
+  - run:
+      name: Writing gh configuration
+      command: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
+  - run:
+      name: Check GitHub auth status
+      command: gh config set -h github.com git_protocol ssh && gh auth status
+  - run:
+      name: Tap tap tap in
+      command: brew tap mherod/tap
+  - run:
+      name: Build and upload bottles, commit Formula update
+      command: sdk env && gradle brewBottlePublish
+  - run:
+      name: Pull again (rebase) and push
+      command: git pull --rebase --autostash && git push origin
+  - save_cache:
+      key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
+      paths:
+        - /Users/distiller/Library/Caches/Homebrew/java_cache
+      when: on_success
+  - run: brew cleanup

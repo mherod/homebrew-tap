@@ -12,7 +12,7 @@ class Resharkercli < Formula
     sha256 "b3764cf7d4566a0a51a170a4518c38fc3c511bb36f32b2b7afc1245232e02154" => :big_sur
   end
 
-  depends_on :xcode => ["12.0", :build]
+  depends_on :xcode => ["10.0", :build]
 
   def install
     system "./gradlew", "installBrewBinary"
