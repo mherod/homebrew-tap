@@ -12,20 +12,17 @@ jobs:
 
     steps:
       - checkout
-      
+
       - restore_cache:
           keys:
             - javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
             - javacache-{{ checksum ".circleci/config.yml" }}-
             - javacache-
-            
-      - run: curl -s "https://get.sdkman.io" | bash
-      - run: source "$HOME/.sdkman/bin/sdkman-init.sh"
-      - run: until sdk env install ; do sdk env || true ; done
+
       - run: brew install gh
       - run: gh config set -h github.com git_protocol ssh
       - run: gh auth status
-      
+
       - run: brew update
       # cat ~/.config/gh/hosts.yml | base64 | pbcopy
       - run: mkdir -p ~/.config/gh && echo $GH_CONFIG | base64 -d > ~/.config/gh/hosts.yml
@@ -33,17 +30,17 @@ jobs:
       - run: brew tap mherod/tap
       - run: sdk env && brew install --verbose resharkercli && resharkercli --help && brew uninstall resharkercli
       - run: sdk env && brew install --verbose --build-bottle resharkercli && brew bottle resharkercli
-      
-      - run: sdk env && bash upload-bottles.sh
-      - run: sdk env && kscript edit-formula.sh
-      
-      - run: git pull --rebase --autostash && git add Formula
-      - run: git commit -m "[automatic] update formulas" && git push origin
-      
+      - run: ./gradlew brewBottleUploadResharkercli --rerun-tasks
+
+#      - run: sdk env && bash upload-bottles.sh
+#      - run: sdk env && kscript edit-formula.sh
+
+#      - run: git pull --rebase --autostash && git add Formula
+#      - run: git commit -m "[automatic] update formulas" && git push origin
+
       - save_cache:
           key: javacache-{{ checksum ".circleci/config.yml" }}-{{ .Revision }}
           paths:
           - /Users/distiller/Library/Caches/Homebrew/java_cache
-          
+
       - run: brew cleanup
-          
