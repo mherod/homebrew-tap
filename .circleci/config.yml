@@ -35,7 +35,7 @@ jobs:
           command: brew tap mherod/tap
       - run:
           name: Build and upload bottles, commit Formula update
-          command: sdk env && gradle brewBottleUploadResharkercli gitCommitFormulaUpdate
+          command: sdk env && gradle brewBottlePublish
       - run:
           name: Pull again (rebase) and push
           command: git pull --rebase --autostash && git push origin
