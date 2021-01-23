@@ -5,6 +5,10 @@ val githubUsername = "mherod"
 val formulaFileTree = fileTree("Formula")
 val headFile = file("$rootDir/.git/HEAD")
 
+val brewBottlePublishTask = task("brewBottlePublish") {
+    group = "homebrew"
+}
+
 formulaFileTree.forEach { formulaFile ->
     val formulaName = formulaFile.nameWithoutExtension
     val capitalizedName = formulaName.capitalize()
@@ -13,6 +17,7 @@ formulaFileTree.forEach { formulaFile ->
     println("Configuring $formulaName $formulaVersion")
     val buildBottleTask = task<Exec>("brewInstallBuildBottle$capitalizedName") {
         group = "homebrew"
+        brewBottlePublishTask.dependsOn(this)
         inputs.file(formulaFile)
         outputs.files(fileTree("/usr/local/Cellar/$formulaName/$formulaVersion"))
         outputs.upToDateWhen {
@@ -32,6 +37,7 @@ formulaFileTree.forEach { formulaFile ->
             bottlesFileCollection.files.forEach { it.delete() }
         }
         group = "homebrew"
+        brewBottlePublishTask.dependsOn(this)
         dependsOn(buildBottleTask)
         mustRunAfter(buildBottleTask)
         commandLine("brew", "bottle", formulaName)
@@ -54,6 +60,7 @@ formulaFileTree.forEach { formulaFile ->
     }
     val uploadTask = task<Exec>(uploadTaskName) {
         group = "homebrew"
+        brewBottlePublishTask.dependsOn(this)
         dependsOn(buildBottleTask, bottleTask)
         commandLine(
             "gh",
@@ -78,6 +85,7 @@ formulaFileTree.forEach { formulaFile ->
     val editFormulaTaskName = "brewEditFormulaForNewBottle$capitalizedName"
     val editFormulaTask = task(editFormulaTaskName) {
         group = "homebrew"
+        brewBottlePublishTask.dependsOn(this)
         dependsOn(buildBottleTask, bottleTask)
         mustRunAfter(buildBottleTask, bottleTask)
         inputs.files(bottleConsoleOut, formulaFile)
@@ -108,19 +116,20 @@ formulaFileTree.forEach { formulaFile ->
             formulaFile.writeText(rewrite)
         }
     }
-    task("gitCommitFormulaUpdate") {
+    val commitTask = task("gitCommitFormulaUpdate$capitalizedName") {
         group = "homebrew"
+        brewBottlePublishTask.dependsOn(this)
         inputs.files(formulaFileTree)
         inputs.file(headFile)
         outputs.file(headFile)
         dependsOn(bottleTask, editFormulaTask, uploadTask)
         mustRunAfter(bottleTask, editFormulaTask, uploadTask)
-        val commitMessage =
-            "[automated] " +
-                    "Update Formula/${formulaName}.rb " +
-                    "for ${bottlesFileCollection.singleFile.nameWithoutExtension}"
         doLast {
-            runCommand("git", "add", "Formula")
+            val commitMessage =
+                "[automated] " +
+                        "Update Formula/${formulaName}.rb " +
+                        "for ${bottlesFileCollection.singleFile.nameWithoutExtension}"
+            runCommand("git", "add", "${formulaFile.relativeToOrSelf(rootDir)}")
             runCommand("git", "commit", "-m", commitMessage)
         }
     }
