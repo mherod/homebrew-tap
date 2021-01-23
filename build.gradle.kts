@@ -113,7 +113,7 @@ formulaFileTree.forEach { formulaFile ->
                 .inputStream
                 .bufferedReader()
                 .readLines()
-            ProcessBuilder("git", "commit", "-m", "\"Update Formula/${formulaName}.rb for ${bottlesFileCollection.singleFile.nameWithoutExtension}\"")
+            ProcessBuilder("git", "commit", "-m", "[automated] Update Formula/${formulaName}.rb for ${bottlesFileCollection.singleFile.nameWithoutExtension}")
                 .start()
                 .inputStream
                 .bufferedReader()
