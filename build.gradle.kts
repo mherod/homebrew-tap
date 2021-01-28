@@ -15,7 +15,7 @@ formulaFileTree.forEach { formulaFile ->
     val originalFormulaText = formulaFile.readText()
     val originalFormulaLines = formulaFile.readLines()
     val formulaVersion = "\"(\\S+)\"".toRegex()
-        .find(originalFormulaLines.first { "version" in it })!!.groupValues.last()
+        .find(originalFormulaLines.first { it.contains("version", ignoreCase = true) })!!.groupValues.last()
     println("Configuring $formulaName $formulaVersion")
     val existingBottles = originalFormulaLines
         .filter { "sha256" in it && "=>" in it }
