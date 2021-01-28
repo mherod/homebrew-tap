@@ -48,6 +48,7 @@ jobs:
     working_directory: ~/repo
 version: 2
 workflows:
+  version: 2
   commit:
     jobs:
       - build12
