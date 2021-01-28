@@ -4,6 +4,7 @@ class Resharkercli < Formula
   homepage ""
   version VERSION
   url "https://github.com/mherod/resharkercli/archive/#{VERSION}.tar.gz"
+  sha256 "5cb86d682a8f5b5aea58bad31e434b5f993a683cc640774db6447b18ec0f9653"
   license ""
   head "https://github.com/mherod/resharkercli.git"
 
