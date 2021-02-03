@@ -11,6 +11,8 @@ class Resharkercli < Formula
     root_url "https://github.com/mherod/resharkercli/releases/download/0.0.4"
     cellar :any_skip_relocation
     sha256 "00a9c3d4fce642247ffdb5bd49cbb9f588e9475a3973ab0da887023c2dd552a1" => :catalina
+    sha256 "1683bc6a62f2633cfed1c38c1969a05276f0bed5705c9f0f23036345aadcc64f" => :big_sur
+
   end
 
   depends_on :xcode => ["12.0", :build]
