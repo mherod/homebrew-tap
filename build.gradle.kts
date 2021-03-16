@@ -31,7 +31,8 @@ formulaFileTree.forEach { formulaFile ->
             "brew",
             "install",
             "--build-bottle",
-            formulaName
+            formulaName,
+            "--verbose"
         )
     }
     val bottlesFileCollection: ConfigurableFileTree = fileTree(mapOf(
