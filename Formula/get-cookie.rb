@@ -9,6 +9,11 @@ class GetCookie < Formula
 
   depends_on :xcode => ["12.0", :build]
 
+  bottle do
+    root_url "https://github.com/mherod/get-cookie/releases/download/#{VERSION}"
+    cellar :any_skip_relocation
+  end
+
   def install
     system "npm", "install"
   end
