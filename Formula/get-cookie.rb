@@ -3,7 +3,7 @@ class GetCookie < Formula
   desc "Node.js module for querying a local user's Chrome cookie"
   homepage "https://github.com/mherod/get-cookie.git"
   version VERSION
-  url "https://github.com/mherod/get-cookie.git", tag: "v#{VERSION}",
+  url "https://github.com/mherod/get-cookie.git", tag: "v#{VERSION}"
   head "https://github.com/mherod/get-cookie.git"
 
   depends_on :xcode => ["12.0", :build]
