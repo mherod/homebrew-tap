@@ -1,3 +1,5 @@
+require "language/node"
+
 class GetCookie < Formula
   VERSION = "0.0.2"
   desc "Node.js module for querying a local user's Chrome cookie"
