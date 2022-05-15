@@ -7,11 +7,6 @@ class GetCookie < Formula
   license ""
   head "https://github.com/mherod/get-cookie.git"
 
-  bottle do
-    root_url "https://github.com/mherod/get-cookie/releases/download/0.0.1"
-    cellar :any_skip_relocation
-  end
-
   depends_on :xcode => ["12.0", :build]
 
   def install
