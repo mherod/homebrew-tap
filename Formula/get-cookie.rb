@@ -10,7 +10,7 @@ class GetCookie < Formula
   depends_on :xcode => ["12.0", :build]
 
   def install
-    system "npm", "install""
+    system "npm", "install"
   end
 
   test do
