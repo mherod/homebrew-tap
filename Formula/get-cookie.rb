@@ -7,7 +7,7 @@ class GetCookie < Formula
   head "https://github.com/mherod/get-cookie.git"
 
   depends_on :xcode => ["12.0", :build]
-  depends_on "node@17" => :build
+  depends_on "node" => :build
 
   def install
     system "npm", "install", *Language::Node.std_npm_install_args(libexec)
