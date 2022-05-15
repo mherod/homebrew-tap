@@ -4,7 +4,7 @@ jobs:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
     macos:
-      xcode: 12.3.0
+      xcode: 12.4.0
     steps:
       - run:
           command: brew doctor --verbose && brew update --verbose
@@ -52,4 +52,3 @@ workflows:
   commit:
     jobs:
       - build12
-
