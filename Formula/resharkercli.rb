@@ -4,13 +4,7 @@ class Resharkercli < Formula
   homepage ""
   version VERSION
   url "https://github.com/mherod/resharkercli/archive/#{VERSION}.tar.gz"
-  license ""
   head "https://github.com/mherod/resharkercli.git"
-
-  bottle do
-    root_url "https://github.com/mherod/resharkercli/releases/download/0.0.5"
-    cellar :any_skip_relocation
-  end
 
   depends_on :xcode => ["12.0", :build]
 
