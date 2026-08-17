@@ -1,27 +1,15 @@
 class Resharkercli < Formula
-  VERSION = "0.0.5"
-  desc "A combined Git and Jira CLI written for Kotlin/Native and JVM 🦈"
-  homepage ""
-  version VERSION
-  url "https://github.com/mherod/resharkercli/archive/#{VERSION}.tar.gz"
+  desc "Git and Jira CLI written for Kotlin/Native and JVM"
+  homepage "https://github.com/mherod/resharkercli"
+  url "https://github.com/mherod/resharkercli/archive/refs/tags/0.0.5.tar.gz"
+  sha256 "53c5dd7209314d3d6c1156e88bc01fe1bbf7a4ab982a941392856ca006472e24"
   head "https://github.com/mherod/resharkercli.git"
 
-  depends_on :xcode => ["12.0", :build]
+  disable! date: "2026-08-17", because: "requires an obsolete Intel-only toolchain and has no upstream license"
+
+  depends_on xcode: ["12.0", :build]
 
   def install
     system "./gradlew", "installBrewBinary", "--info"
-  end
-
-  test do
-    # `test do` will create, run in and delete a temporary directory.
-    #
-    # This test will fail and we won't accept that! For Homebrew/homebrew-core
-    # this will need to be a test that verifies the functionality of the
-    # software. Run the test with `brew test resharkercli`. Options passed
-    # to `brew install` such as `--HEAD` also need to be provided to `brew test`.
-    #
-    # The installed folder is not in the path, so use the entire path to any
-    # executables being tested: `system "#{bin}/program", "do", "something"`.
-    system "false"
   end
 end

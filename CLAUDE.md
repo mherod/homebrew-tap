@@ -1,35 +1,54 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for working in `mherod/homebrew-tap`.
 
-## Overview
+## Repository purpose
 
-Personal Homebrew tap (`mherod/homebrew-tap`) containing two formulas:
-- **get-cookie** — Node.js CLI for querying local Chrome cookies
-- **resharkercli** — Git/Jira CLI built with Kotlin/Native and JVM
+This repository packages upstream projects as Homebrew formulae. It does not
+contain the applications' source code.
 
-## Build System
+- `Formula/get-cookie.rb` packages the supported `get-cookie` CLI.
+- `Formula/resharkercli.rb` preserves metadata for the disabled legacy
+  `resharkercli` formula.
 
-Gradle (Kotlin DSL) automates the full bottle lifecycle. Key tasks:
+## Formula conventions
+
+- Use an immutable stable release URL and `sha256`.
+- Declare the upstream license only when the upstream release contains or
+  clearly declares it.
+- Declare build and runtime dependencies accurately.
+- Install executables into Homebrew's `bin` and add a meaningful, non-secret
+  `test do` assertion.
+- Never access real browser cookies or credentials from formula tests.
+- Prefer current Homebrew helpers such as `std_npm_args` instead of importing
+  legacy language modules directly.
+- Do not restore custom bottle-block parsing or editing. Homebrew owns bottle
+  metadata generation through `brew test-bot` and `brew pr-pull`.
+
+## Validation
+
+For a changed, supported formula, run these commands from Homebrew's local
+`mherod/tap` checkout:
 
 ```bash
-./gradlew brewBottlePublish          # Full pipeline: build, bottle, upload, edit formula, commit
-./gradlew brewInstallBuildBottle<Name>  # brew install --build-bottle for a formula
-./gradlew brewBottle<Name>           # Create bottle tarball
-./gradlew brewBottleUpload<Name>     # Upload bottle to GitHub release via gh CLI
+ruby -c Formula/get-cookie.rb
+brew audit --strict --online --formula mherod/tap/get-cookie
+brew install --build-from-source mherod/tap/get-cookie
+brew test mherod/tap/get-cookie
 ```
 
-`<Name>` is the capitalized formula name (e.g., `GetCookie`, `Resharkercli`).
+Also validate workflow YAML whenever `.github/workflows/` changes.
 
-The build dynamically discovers all `.rb` files in `Formula/`, extracts version strings, and generates per-formula task chains. After bottling, it rewrites the formula file to add new `sha256` bottle entries and auto-commits.
+## CI and bottle publication
 
-## Formula Files
+- `.github/workflows/tests.yml` is the read-only pull-request test and bottle
+  build workflow generated from Homebrew's `tap-new` template.
+- `.github/workflows/publish.yml` is manually dispatched after review and runs
+  `brew pr-pull` with an optional expected head SHA.
+- Keep action references pinned to full commit SHAs and retain least-privilege
+  job permissions.
+- Do not add personal GitHub CLI configuration, direct pushes from test jobs,
+  or a second release pipeline.
 
-Located in `Formula/`. Each is a standard Homebrew Ruby formula. Versions are defined as `VERSION` constants at the top of each file. URLs point to GitHub repos under `mherod/`.
-
-## Dependencies
-
-- **Gradle** with parallel builds and caching enabled (`gradle.properties`)
-- **SDKMAN** for JDK/Kotlin toolchain (`install-sdkman-tools.sh` reads `.sdkmanrc`)
-- **gh CLI** for uploading bottles to GitHub Releases
-- **Homebrew** for `brew install`, `brew bottle` commands
+When refreshing workflows, render them from the current installed Homebrew
+`brew tap-new` templates and review the resulting diff.

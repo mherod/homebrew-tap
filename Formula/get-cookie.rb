@@ -1,30 +1,27 @@
-require "language/node"
-
 class GetCookie < Formula
-  VERSION = "0.0.2"
-  desc "Node.js module for querying a local user's Chrome cookie"
-  homepage "https://github.com/mherod/get-cookie.git"
-  version VERSION
-  url "https://github.com/mherod/get-cookie.git", tag: "v#{VERSION}"
-  head "https://github.com/mherod/get-cookie.git"
+  desc "Query cookies from Chrome, Firefox, Safari, and other browsers"
+  homepage "https://github.com/mherod/get-cookie"
+  url "https://registry.npmjs.org/@mherod/get-cookie/-/get-cookie-4.4.3.tgz"
+  sha256 "f2e822b4a3acbbfbe855e7aa2bb6cb3ca7f486527acf9513dd5e88b4b781d187"
+  license "ISC"
 
-  depends_on :xcode => ["12.0", :build]
-  depends_on "node" => :build
+  depends_on "python@3.14" => :build
+  depends_on "node@24"
 
   def install
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
+    system "npm", "install", *std_npm_args
+
+    # Homebrew skips dependency install scripts, so build the native SQLite
+    # binding explicitly against the Node version provided by this formula.
+    better_sqlite3 = libexec/"lib/node_modules/@mherod/get-cookie/node_modules/better-sqlite3"
+    cd(better_sqlite3) { system "npm", "run", "build-release" }
+
+    bin.install_symlink libexec.glob("bin/*")
   end
 
   test do
-    # `test do` will create, run in and delete a temporary directory.
-    #
-    # This test will fail and we won't accept that! For Homebrew/homebrew-core
-    # this will need to be a test that verifies the functionality of the
-    # software. Run the test with `brew test resharkercli`. Options passed
-    # to `brew install` such as `--HEAD` also need to be provided to `brew test`.
-    #
-    # The installed folder is not in the path, so use the entire path to any
-    # executables being tested: `system "#{bin}/program", "do", "something"`.
-    system "false"
+    output = shell_output("#{bin}/get-cookie --help")
+    assert_match "Usage: get-cookie [name] [domain] [options]", output
+    assert_match "--browser BROWSER", output
   end
 end
